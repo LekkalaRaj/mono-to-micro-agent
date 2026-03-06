@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Migration Architect — Presentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --gold: #C9A84C;
+            --gold-light: #E8CC7A;
+            --gold-dim: #7A6330;
+            --bg: #0A0C0F;
+            --bg-card: #0F1318;
+            --bg-elevated: #141920;
+            --border: rgba(201, 168, 76, 0.2);
+            --border-bright: rgba(201, 168, 76, 0.6);
+            --text: #E8E4DA;
+            --text-dim: #8A8478;
+            --text-muted: #4A4840;
+            --red: #C94C4C;
+            --green: #4CAF7A;
+            --blue: #4C8BC9;
+            --teal: #4CC9B8;
+            --amber: #C97A4C;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* ── Grain overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 40px 80px;
+        }
+
+        /* ══════════════════════════════════════════
+     HEADER
+  ══════════════════════════════════════════ */
+        .header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: end;
+            padding: 48px 0 40px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 48px;
+            animation: fadeDown 0.8s ease both;
+        }
+
+        .header-badge {
+            font-size: 10px;
+            letter-spacing: 0.25em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-badge::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 4vw, 56px);
+            font-weight: 300;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            color: var(--text);
+        }
+
+        .header h1 strong {
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+
+        .header-meta {
+            text-align: right;
+        }
+
+        .header-meta .inst {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+        }
+
+        .header-meta .sub {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════════════════
+     STATS ROW
+  ══════════════════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin-bottom: 48px;
+            animation: fadeUp 0.8s 0.1s ease both;
+        }
+
+        .stat {
+            background: var(--bg-card);
+            padding: 24px 28px;
+            transition: background 0.2s;
+        }
+
+        .stat:hover {
+            background: var(--bg-elevated);
+        }
+
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--gold-light);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .stat-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════════════════
+     SECTION TITLES
+  ══════════════════════════════════════════ */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .section-title .label {
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ══════════════════════════════════════════
+     PROBLEM / SOLUTION ROW
+  ══════════════════════════════════════════ */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 28px;
+            animation: fadeUp 0.8s 0.2s ease both;
+        }
+
+        .panel-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-red {
+            background: var(--red);
+            box-shadow: 0 0 8px var(--red);
+        }
+
+        .dot-green {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        .dot-gold {
+            background: var(--gold);
+            box-shadow: 0 0 8px var(--gold);
+        }
+
+        .dot-blue {
+            background: var(--blue);
+            box-shadow: 0 0 8px var(--blue);
+        }
+
+        .pain-list {
+            list-style: none;
+        }
+
+        .pain-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-dim);
+            transition: color 0.2s;
+        }
+
+        .pain-list li:hover {
+            color: var(--text);
+        }
+
+        .pain-list li::before {
+            content: '—';
+            color: var(--red);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .pain-list li:last-child {
+            border-bottom: none;
+        }
+
+        .sol-list {
+            list-style: none;
+        }
+
+        .sol-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-dim);
+            transition: color 0.2s;
+        }
+
+        .sol-list li:hover {
+            color: var(--text);
+        }
+
+        .sol-list li::before {
+            content: '✦';
+            color: var(--gold);
+            flex-shrink: 0;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .sol-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* ══════════════════════════════════════════
+     ARCHITECTURE FLOW
+  ══════════════════════════════════════════ */
+        .arch-section {
+            margin-bottom: 48px;
+        }
+
+        .arch-flow {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.8s 0.3s ease both;
+        }
+
+        /* Animated grid lines in background */
+        .arch-flow::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .flow-nodes {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0;
+            z-index: 2;
+        }
+
+        .flow-node {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .node-box {
+            width: 100%;
+            max-width: 150px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .node-box:hover,
+        .flow-node.active .node-box {
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, 0.07);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 168, 76, 0.3);
+        }
+
+        .node-icon {
+            font-size: 22px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .node-name {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .node-desc {
+            font-size: 9px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Connector arrows */
+        .flow-arrow {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .arrow-line {
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+            position: relative;
+            overflow: visible;
+        }
+
+        .arrow-line::after {
+            content: '▶';
+            position: absolute;
+            right: -6px;
+            top: -6px;
+            font-size: 9px;
+            color: var(--gold);
+        }
+
+        .arrow-label {
+            font-size: 8px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ── Animated pulse on arrows ── */
+        @keyframes pulse-travel {
+            0% {
+                left: 0;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        .arrow-line::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 8px;
+            height: 5px;
+            background: var(--gold-light);
+            border-radius: 2px;
+            animation: pulse-travel 2.5s linear infinite;
+            box-shadow: 0 0 8px var(--gold);
+        }
+
+        /* ══════════════════════════════════════════
+     PHASE CARDS (interactive)
+  ══════════════════════════════════════════ */
+        .phases-section {
+            margin-bottom: 48px;
+        }
+
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .phase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeUp 0.8s ease both;
+            overflow: hidden;
+        }
+
+        .phase-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .phase-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .phase-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .phase-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .phase-card:hover,
+        .phase-card.active {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.25);
+        }
+
+        .phase-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .phase-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--border-bright);
+            line-height: 1;
+            flex-shrink: 0;
+            transition: color 0.25s;
+        }
+
+        .phase-card.active .phase-num,
+        .phase-card:hover .phase-num {
+            color: var(--gold);
+        }
+
+        .phase-title-block {}
+
+        .phase-roman {
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .phase-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .phase-owner {
+            font-size: 9px;
+            color: var(--gold-dim);
+            margin-top: 4px;
+            letter-spacing: 0.1em;
+        }
+
+        .phase-body {
+            padding: 16px 20px 20px;
+        }
+
+        .phase-tasks {
+            list-style: none;
+        }
+
+        .phase-tasks li {
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            line-height: 1.4;
+        }
+
+        .phase-tasks li:last-child {
+            border-bottom: none;
+        }
+
+        .phase-tasks li::before {
+            content: '›';
+            color: var(--gold-dim);
+            flex-shrink: 0;
+        }
+
+        .phase-output {
+            margin-top: 14px;
+            padding: 10px 12px;
+            background: rgba(201, 168, 76, 0.05);
+            border-left: 2px solid var(--gold-dim);
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .phase-output strong {
+            color: var(--gold-dim);
+        }
+
+        /* ══════════════════════════════════════════
+     AGENT TOPOLOGY
+  ══════════════════════════════════════════ */
+        .topology-section {
+            margin-bottom: 48px;
+        }
+
+        .topology-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 16px;
+            animation: fadeUp 0.8s 0.3s ease both;
+        }
+
+        .orch-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-bright);
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .orch-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -17px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid var(--gold-dim);
+        }
+
+        .orch-icon {
+            font-size: 32px;
+        }
+
+        .orch-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+
+        .orch-type {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .orch-badge {
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid var(--gold-dim);
+            padding: 3px 10px;
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .agent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 18px 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .agent-card:hover {
+            border-color: var(--gold);
+            background: var(--bg-elevated);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .agent-icon {
+            font-size: 18px;
+        }
+
+        .agent-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tool-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            font-size: 8px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            border-color: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .chip-gold {
+            border-color: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .chip-blue {
+            border-color: rgba(76, 139, 201, 0.4);
+            color: var(--blue);
+        }
+
+        .chip-teal {
+            border-color: rgba(76, 201, 184, 0.4);
+            color: var(--teal);
+        }
+
+        .chip-amber {
+            border-color: rgba(201, 122, 76, 0.4);
+            color: var(--amber);
+        }
+
+        .agent-output {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .agent-output span {
+            color: var(--gold-dim);
+        }
+
+        /* ══════════════════════════════════════════
+     MODULE TREE
+  ══════════════════════════════════════════ */
+        .module-section {
+            margin-bottom: 48px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            animation: fadeUp 0.8s 0.4s ease both;
+        }
+
+        .module-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .module-col:hover {
+            border-color: var(--gold-dim);
+        }
+
+        .module-col-header {
+            padding: 12px 14px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-col-header .col-icon {
+            font-size: 12px;
+        }
+
+        .module-files {
+            padding: 10px;
+        }
+
+        .module-file {
+            padding: 6px 8px;
+            font-size: 10px;
+            color: var(--text-muted);
+            border-radius: 0;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: default;
+        }
+
+        .module-file:hover {
+            background: rgba(201, 168, 76, 0.06);
+            color: var(--text);
+            padding-left: 12px;
+        }
+
+        .file-icon {
+            font-size: 10px;
+            opacity: 0.5;
+        }
+
+        .file-role {
+            font-size: 8px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ══════════════════════════════════════════
+     STRANGLER FIG TIMELINE
+  ══════════════════════════════════════════ */
+        .timeline-section {
+            margin-bottom: 48px;
+        }
+
+        .timeline-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 36px 40px;
+            animation: fadeUp 0.8s 0.4s ease both;
+        }
+
+        .timeline-tracks {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .track-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .track-row:last-child {
+            border-bottom: none;
+        }
+
+        .track-label {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        .track-bar-outer {
+            position: relative;
+            height: 28px;
+            display: flex;
+            align-items: center;
+        }
+
+        .track-phases {
+            display: flex;
+            width: 100%;
+            gap: 2px;
+        }
+
+        .track-seg {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track-seg::after {
+            content: attr(data-pct);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 9px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .track-seg:hover {
+            filter: brightness(1.2);
+        }
+
+        .seg-monolith {
+            background: rgba(201, 76, 76, 0.25);
+            color: var(--red);
+            border: 1px solid rgba(201, 76, 76, 0.3);
+        }
+
+        .seg-micro {
+            background: rgba(76, 175, 122, 0.25);
+            color: var(--green);
+            border: 1px solid rgba(76, 175, 122, 0.3);
+        }
+
+        .seg-dead {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        .timeline-legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .legend-swatch {
+            width: 20px;
+            height: 10px;
+        }
+
+        .phase-markers {
+            display: flex;
+            margin-top: 8px;
+            padding-left: 142px;
+            gap: 2px;
+        }
+
+        .phase-marker {
+            flex: 1;
+            text-align: center;
+            font-size: 8px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding-top: 4px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ══════════════════════════════════════════
+     COMPLIANCE ROW
+  ══════════════════════════════════════════ */
+        .compliance-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 48px;
+            animation: fadeUp 0.8s 0.5s ease both;
+        }
+
+        .compliance-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: default;
+        }
+
+        .compliance-card:hover {
+            border-color: var(--gold-dim);
+            background: var(--bg-elevated);
+        }
+
+        .comp-icon {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .comp-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+        }
+
+        .comp-items {
+            list-style: none;
+        }
+
+        .comp-items li {
+            font-size: 10px;
+            color: var(--text-muted);
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            gap: 6px;
+        }
+
+        .comp-items li:last-child {
+            border-bottom: none;
+        }
+
+        .comp-items li::before {
+            content: '✓';
+            color: var(--green);
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════════ */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeUp 0.8s 0.6s ease both;
+        }
+
+        .footer-left {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .footer-left strong {
+            color: var(--gold-dim);
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 24px;
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .footer-right span {
+            color: var(--gold-dim);
+        }
+
+        /* ══════════════════════════════════════════
+     ANIMATIONS
+  ══════════════════════════════════════════ */
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scanning line on arch diagram */
+        @keyframes scan {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100vw);
+            }
+        }
+
+        .arch-flow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, rgba(201, 168, 76, 0.15), transparent);
+            animation: scan 6s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1100px) {
+            .phases-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .module-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .agents-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topology-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .orch-card::after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                padding: 24px 20px 60px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .compliance-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .module-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-nodes {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .flow-arrow {
+                display: none;
+            }
+
+            .header {
+                grid-template-columns: 1fr;
+            }
+
+            .header-meta {
+                text-align: left;
+                margin-top: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+
+        <!-- ══ HEADER ══ -->
+        <header class="header">
+            <div>
+                <div class="header-badge">Confidential — Internal Architecture Briefing</div>
+                <h1>Legacy-to-<strong>Cloud Native</strong><br>Migration Architect</h1>
+            </div>
+            <div class="header-meta">
+                <div class="inst">200-Year Financial Institution</div>
+                <div class="sub">Google ADK Multi-Agent System · Java Monolith Migration</div>
+            </div>
+        </header>
+
+        <!-- ══ STATS ══ -->
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Migration Phases</div>
+                <div class="stat-sub">Discovery → DevOps</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Specialist Agents</div>
+                <div class="stat-sub">Analyst · Engineer · DevOps</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">4</div>
+                <div class="stat-label">ADK Tools</div>
+                <div class="stat-sub">CodeReader · Architect · Coder · DevOps</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">Java 21</div>
+                <div class="stat-label">Target Stack</div>
+                <div class="stat-sub">Spring Boot 3.x · K8s · Helm</div>
+            </div>
+        </div>
+
+        <!-- ══ PROBLEM / SOLUTION ══ -->
+        <div class="section-title"><span class="label">Business Context</span></div>
+        <div class="two-col">
+            <div class="panel">
+                <div class="panel-title"><span class="dot dot-red"></span>The Problem</div>
+                <ul class="pain-list">
+                    <li>Decades of accumulated Java business logic with no documentation</li>
+                    <li>God Classes — thousands of lines, hundreds of dependencies</li>
+                    <li>Shared database schemas coupling unrelated business domains</li>
+                    <li>Zero test coverage on critical payment and ledger paths</li>
+                    <li>Impossible to deploy without full-system regression testing</li>
+                    <li>PCI-DSS, SOX, GDPR compliance at risk with every release</li>
+                    <li>Manual analysis by senior engineers takes 6–12 months</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <div class="panel-title"><span class="dot dot-green"></span>The Solution</div>
+                <ul class="sol-list">
+                    <li>AI-powered static analysis maps the entire codebase in minutes</li>
+                    <li>DDD Bounded Contexts automatically identify service boundaries</li>
+                    <li>Strangler Fig Pattern enables zero-downtime incremental migration</li>
+                    <li>Auto-generated JUnit 5 test suites with 85%+ coverage targets</li>
+                    <li>Production-ready Helm charts, K8s manifests and HPA configs</li>
+                    <li>Vault-integrated secrets — no hardcoded credentials, ever</li>
+                    <li>Full audit trail with timestamped DECISION_LOG per phase</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ══ ARCHITECTURE FLOW ══ -->
+        <div class="arch-section">
+            <div class="section-title"><span class="label">System Architecture</span></div>
+            <div class="arch-flow">
+                <div class="flow-nodes">
+
+                    <div class="flow-node" title="Source: GitHub Repository">
+                        <div class="node-box">
+                            <span class="node-icon">🏛️</span>
+                            <span class="node-name">Monolith</span>
+                            <div class="node-desc">GitHub Java<br>Repository</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-label">URL input</div>
+                    </div>
+
+                    <div class="flow-node" title="Google ADK Orchestrator">
+                        <div class="node-box" style="border-color: rgba(201,168,76,0.5);">
+                            <span class="node-icon">🧠</span>
+                            <span class="node-name">Orchestrator</span>
+                            <div class="node-desc">SequentialAgent<br>Google ADK</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-label">phase I–II</div>
+                    </div>
+
+                    <div class="flow-node" title="Code Analyst Agent">
+                        <div class="node-box">
+                            <span class="node-icon">🔍</span>
+                            <span class="node-name">Analyst</span>
+                            <div class="node-desc">DDD Mapping<br>Mermaid Diagrams</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-label">phase III</div>
+                    </div>
+
+                    <div class="flow-node" title="Test Engineer Agent">
+                        <div class="node-box">
+                            <span class="node-icon">🧪</span>
+                            <span class="node-name">Engineer</span>
+                            <div class="node-desc">Spring Boot<br>JUnit 5 Tests</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-label">phase IV</div>
+                    </div>
+
+                    <div class="flow-node" title="DevOps Agent">
+                        <div class="node-box">
+                            <span class="node-icon">🚀</span>
+                            <span class="node-name">DevOps</span>
+                            <div class="node-desc">Helm · K8s<br>Dockerfile</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-label">deploy</div>
+                    </div>
+
+                    <div class="flow-node" title="Cloud Native Microservices">
+                        <div class="node-box" style="border-color: rgba(76,175,122,0.5);">
+                            <span class="node-icon">☁️</span>
+                            <span class="node-name">Microservices</span>
+                            <div class="node-desc">Kubernetes<br>Cloud Native</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ FOUR PHASES ══ -->
+        <div class="phases-section">
+            <div class="section-title"><span class="label">Migration Phases</span></div>
+            <div class="phases-grid">
+
+                <div class="phase-card active" onclick="this.classList.toggle('active')">
+                    <div class="phase-header">
+                        <div class="phase-num">I</div>
+                        <div class="phase-title-block">
+                            <div class="phase-roman">Phase One</div>
+                            <div class="phase-name">Discovery &amp; Deep Analysis</div>
+                            <div class="phase-owner">→ CodeAnalystAgent</div>
+                        </div>
+                    </div>
+                    <div class="phase-body">
+                        <ul class="phase-tasks">
+                            <li>Static analysis of entire Java repository via GitHub API</li>
+                            <li>Identify God Classes (&gt;500 LOC, &gt;10 public methods)</li>
+                            <li>Map coupling hotspots — LOW / MEDIUM / HIGH / CRITICAL severity</li>
+                            <li>Detect shared database schemas across domain boundaries</li>
+                            <li>Generate System Context Mermaid.js diagram</li>
+                        </ul>
+                        <div class="phase-output"><strong>Output:</strong> README_DECOMPOSITION.md · Coupling Risk
+                            Report</div>
+                    </div>
+                </div>
+
+                <div class="phase-card" onclick="this.classList.toggle('active')">
+                    <div class="phase-header">
+                        <div class="phase-num">II</div>
+                        <div class="phase-title-block">
+                            <div class="phase-roman">Phase Two</div>
+                            <div class="phase-name">Decomposition &amp; Patterns</div>
+                            <div class="phase-owner">→ CodeAnalystAgent</div>
+                        </div>
+                    </div>
+                    <div class="phase-body">
+                        <ul class="phase-tasks">
+                            <li>DDD Bounded Context identification (Payments, Ledger, Auth, Notifications)</li>
+                            <li>Propose Database-per-Service split with migration plan</li>
+                            <li>Design Saga Pattern for distributed financial transactions</li>
+                            <li>Generate Strangler Fig traffic routing plan (NGINX / Istio)</li>
+                            <li>Produce Class and Sequence Mermaid diagrams</li>
+                        </ul>
+                        <div class="phase-output"><strong>Output:</strong> 4 Bounded Contexts · Strangler Fig Roadmap
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-card" onclick="this.classList.toggle('active')">
+                    <div class="phase-header">
+                        <div class="phase-num">III</div>
+                        <div class="phase-title-block">
+                            <div class="phase-roman">Phase Three</div>
+                            <div class="phase-name">Implementation &amp; Tests</div>
+                            <div class="phase-owner">→ TestEngineerAgent</div>
+                        </div>
+                    </div>
+                    <div class="phase-body">
+                        <ul class="phase-tasks">
+                            <li>Generate Spring Boot 3.x microservice scaffolds (Java 21)</li>
+                            <li>JUnit 5 unit tests — happy path, null safety, BigDecimal overflow</li>
+                            <li>MockMvc integration tests (85% line / 80% branch coverage target)</li>
+                            <li>WireMock stubs for every downstream API call</li>
+                            <li>Pact contract stubs for service-to-service compatibility</li>
+                        </ul>
+                        <div class="phase-output"><strong>Output:</strong> 4 Spring Boot services · Full test pyramid
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-card" onclick="this.classList.toggle('active')">
+                    <div class="phase-header">
+                        <div class="phase-num">IV</div>
+                        <div class="phase-title-block">
+                            <div class="phase-roman">Phase Four</div>
+                            <div class="phase-name">Infrastructure &amp; DevOps</div>
+                            <div class="phase-owner">→ DevOpsSpecialistAgent</div>
+                        </div>
+                    </div>
+                    <div class="phase-body">
+                        <ul class="phase-tasks">
+                            <li>Multi-stage Dockerfile using distroless base (UID 10001, no shell)</li>
+                            <li>Helm charts with Deployment, Service, Ingress, HPA manifests</li>
+                            <li>Vault sidecar annotations — zero plaintext credentials</li>
+                            <li>HPA scaling on CPU (65%) and Memory (80%) — dual-metric</li>
+                            <li>OpenTelemetry + Prometheus/Grafana observability annotations</li>
+                        </ul>
+                        <div class="phase-output"><strong>Output:</strong> Dockerfile · Helm Chart · K8s Manifests · HPA
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ AGENT TOPOLOGY ══ -->
+        <div class="topology-section">
+            <div class="section-title"><span class="label">Agent Topology</span></div>
+            <div class="topology-grid">
+                <div class="orch-card">
+                    <div class="orch-icon">🎼</div>
+                    <div class="orch-name">Migration<br>Orchestrator</div>
+                    <div class="orch-type">Google ADK</div>
+                    <div class="orch-badge">SequentialAgent</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <span class="agent-icon">🔍</span>
+                            <span class="agent-name">CodeAnalystAgent</span>
+                        </div>
+                        <div class="tool-chips">
+                            <span class="chip chip-gold">code_reader_tool</span>
+                            <span class="chip chip-gold">architect_tool</span>
+                        </div>
+                        <div class="agent-output">Phases I & II — reads source, maps bounded contexts, generates
+                            diagrams.<br><span>output_key:</span> analysis_result</div>
+                    </div>
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <span class="agent-icon">🧪</span>
+                            <span class="agent-name">TestEngineerAgent</span>
+                        </div>
+                        <div class="tool-chips">
+                            <span class="chip chip-teal">coder_tool</span>
+                        </div>
+                        <div class="agent-output">Phase III — generates Spring Boot scaffolds and full JUnit 5 testing
+                            pyramid.<br><span>output_key:</span> implementation_result</div>
+                    </div>
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <span class="agent-icon">🚀</span>
+                            <span class="agent-name">DevOpsSpecialistAgent</span>
+                        </div>
+                        <div class="tool-chips">
+                            <span class="chip chip-amber">devops_tool</span>
+                        </div>
+                        <div class="agent-output">Phase IV — generates Dockerfile, Helm charts, K8s manifests and HPA
+                            configs.<br><span>output_key:</span> devops_result</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ MODULE STRUCTURE ══ -->
+        <div class="module-section">
+            <div class="section-title"><span class="label">Codebase Architecture — 9-Layer Modular Design</span></div>
+            <div class="module-grid">
+                <div class="module-col">
+                    <div class="module-col-header"><span class="col-icon">⚙️</span> config/</div>
+                    <div class="module-files">
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>settings.py</div>
+                                <div class="file-role">Pydantic BaseSettings</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>bootstrap.py</div>
+                                <div class="file-role">genai.configure()</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-col">
+                    <div class="module-col-header"><span class="col-icon">📐</span> models/</div>
+                    <div class="module-files">
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>schemas.py</div>
+                                <div class="file-role">Pydantic v2 contracts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-col">
+                    <div class="module-col-header"><span class="col-icon">🔧</span> tools/</div>
+                    <div class="module-files">
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>code_reader.py</div>
+                                <div class="file-role">GitHub fetcher</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>architect.py</div>
+                                <div class="file-role">DDD + Mermaid</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>coder.py</div>
+                                <div class="file-role">Spring Boot gen</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>devops.py</div>
+                                <div class="file-role">K8s manifests</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-col">
+                    <div class="module-col-header"><span class="col-icon">🗣️</span> prompts/</div>
+                    <div class="module-files">
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>master.py</div>
+                                <div class="file-role">Base persona</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>analyst.py</div>
+                                <div class="file-role">Phase I–II</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>test_engineer.py</div>
+                                <div class="file-role">Phase III</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>devops.py</div>
+                                <div class="file-role">Phase IV</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-col">
+                    <div class="module-col-header"><span class="col-icon">🤖</span> agents/</div>
+                    <div class="module-files">
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>base.py</div>
+                                <div class="file-role">AgentFactory</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>analyst_agent.py</div>
+                                <div class="file-role">Phase I–II agent</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>test_engineer_agent.py</div>
+                                <div class="file-role">Phase III agent</div>
+                            </div>
+                        </div>
+                        <div class="module-file"><span class="file-icon">📄</span>
+                            <div>
+                                <div>devops_agent.py</div>
+                                <div class="file-role">Phase IV agent</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ STRANGLER FIG TIMELINE ══ -->
+        <div class="timeline-section">
+            <div class="section-title"><span class="label">Strangler Fig Migration Timeline</span></div>
+            <div class="timeline-wrapper">
+                <div class="timeline-tracks">
+
+                    <div class="track-row">
+                        <div class="track-label">Auth<br>Service</div>
+                        <div class="track-bar-outer">
+                            <div class="track-phases">
+                                <div class="track-seg seg-monolith" style="flex:5" data-pct="100% →"></div>
+                                <div class="track-seg seg-micro" style="flex:1" data-pct="10%"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="50%"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="100% ✓"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="track-row">
+                        <div class="track-label">Payment<br>Service</div>
+                        <div class="track-bar-outer">
+                            <div class="track-phases">
+                                <div class="track-seg seg-dead" style="flex:2"></div>
+                                <div class="track-seg seg-monolith" style="flex:4" data-pct="100% →"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="50%"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="100% ✓"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="track-row">
+                        <div class="track-label">Ledger<br>Service</div>
+                        <div class="track-bar-outer">
+                            <div class="track-phases">
+                                <div class="track-seg seg-dead" style="flex:3"></div>
+                                <div class="track-seg seg-monolith" style="flex:3" data-pct="100% →"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="50%"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="100% ✓"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="track-row">
+                        <div class="track-label">Notification<br>Service</div>
+                        <div class="track-bar-outer">
+                            <div class="track-phases">
+                                <div class="track-seg seg-dead" style="flex:4"></div>
+                                <div class="track-seg seg-monolith" style="flex:2" data-pct="100% →"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="50%"></div>
+                                <div class="track-seg seg-micro" style="flex:2" data-pct="100% ✓"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="track-row" style="border-bottom:none">
+                        <div class="track-label" style="color:var(--red)">Monolith<br>Traffic</div>
+                        <div class="track-bar-outer">
+                            <div class="track-phases">
+                                <div class="track-seg seg-monolith" style="flex:10" data-pct="100%"></div>
+                                <div class="track-seg seg-monolith" style="flex:5" data-pct="90%"></div>
+                                <div class="track-seg seg-monolith" style="flex:3" data-pct="50%"></div>
+                                <div class="track-seg seg-monolith" style="flex:1" data-pct="10%"></div>
+                                <div class="track-seg"
+                                    style="flex:1; background: rgba(201,76,76,0.05); border:1px solid rgba(201,76,76,0.1)"
+                                    data-pct="0% 🏁"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="phase-markers">
+                    <div class="phase-marker">Wk 1–2<br>Auth</div>
+                    <div class="phase-marker">Wk 3–4<br>Payments</div>
+                    <div class="phase-marker">Wk 5–6<br>Ledger</div>
+                    <div class="phase-marker">Wk 7–8<br>Notify</div>
+                    <div class="phase-marker">Wk 9<br>Decommission</div>
+                </div>
+
+                <div class="timeline-legend">
+                    <div class="legend-item">
+                        <div class="legend-swatch seg-monolith"></div>
+                        <span>Monolith handling traffic</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch seg-micro"></div>
+                        <span>Microservice handling traffic</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch seg-dead"></div>
+                        <span>Service not yet extracted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ COMPLIANCE ══ -->
+        <div class="section-title"><span class="label">Regulatory &amp; Security Compliance</span></div>
+        <div class="compliance-row">
+            <div class="compliance-card">
+                <div class="comp-icon">🔐</div>
+                <div class="comp-name">PCI-DSS</div>
+                <ul class="comp-items">
+                    <li>Zero hardcoded credentials</li>
+                    <li>Vault sidecar injection only</li>
+                    <li>Distroless containers (no shell)</li>
+                    <li>Non-root UID 10001 enforced</li>
+                </ul>
+            </div>
+            <div class="compliance-card">
+                <div class="comp-icon">📋</div>
+                <div class="comp-name">SOX</div>
+                <ul class="comp-items">
+                    <li>Timestamped DECISION_LOG</li>
+                    <li>Immutable audit trail per phase</li>
+                    <li>All DB mutations @Transactional</li>
+                    <li>BigDecimal — no float arithmetic</li>
+                </ul>
+            </div>
+            <div class="compliance-card">
+                <div class="comp-icon">🛡️</div>
+                <div class="comp-name">GDPR</div>
+                <ul class="comp-items">
+                    <li>PII scrubbed from source analysis</li>
+                    <li>Anonymised test fixtures only</li>
+                    <li>OpenTelemetry for data lineage</li>
+                    <li>No PII in generated code or logs</li>
+                </ul>
+            </div>
+            <div class="compliance-card">
+                <div class="comp-icon">📡</div>
+                <div class="comp-name">Observability</div>
+                <ul class="comp-items">
+                    <li>Prometheus scrape annotations</li>
+                    <li>Liveness + Readiness probes</li>
+                    <li>OpenTelemetry trace context</li>
+                    <li>Grafana dashboard annotations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ══ FOOTER ══ -->
+        <footer class="footer">
+            <div class="footer-left">
+                <strong>LEGACY-TO-CLOUD-NATIVE ARCHITECT</strong><br>
+                Google ADK Multi-Agent System · v2.0.0 · Internal Architecture Briefing
+            </div>
+            <div class="footer-right">
+                <span>Gemini 2.0 Flash</span>
+                <span>SequentialAgent</span>
+                <span>Strangler Fig Pattern</span>
+                <span>Spring Boot 3.x</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // Subtle entrance stagger for module files
+        document.querySelectorAll('.module-file').forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(-8px)';
+            el.style.transition = `opacity 0.4s ${0.05 * i}s ease, transform 0.4s ${0.05 * i}s ease`;
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateX(0)';
+            }, 600 + i * 50);
+        });
+
+        // Animate stat values counting up
+        document.querySelectorAll('.stat-value').forEach(el => {
+            const text = el.textContent.trim();
+            const num = parseInt(text);
+            if (!isNaN(num) && num < 20) {
+                el.textContent = '0';
+                let current = 0;
+                const step = () => {
+                    current++;
+                    el.textContent = text.replace(String(num), String(current));
+                    if (current < num) setTimeout(step, 120);
+                };
+                setTimeout(step, 400);
+            }
+        });
+
+        // Phase card keyboard accessibility
+        document.querySelectorAll('.phase-card').forEach(card => {
+            card.setAttribute('tabindex', '0');
+            card.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.classList.toggle('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

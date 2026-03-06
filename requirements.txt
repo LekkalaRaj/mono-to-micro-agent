@@ -1,0 +1,15 @@
+# ── Google ADK & Gemini ───────────────────────────────────────────────────────
+google-adk>=0.3.0
+google-generativeai>=0.7.0
+
+# ── Settings & validation ─────────────────────────────────────────────────────
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+
+# ── GitHub integration (live CodeReader implementation) ───────────────────────
+PyGitHub>=2.3.0
+requests>=2.32.0
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=8.2.0
+pytest-asyncio>=0.23.0

@@ -1,79 +1,162 @@
 # 🏗️ MonoToMicro (M2M) Agent
 
-> **"Bridging Legacy with Agentic AI."**
+# 🏗️ Legacy-to-Cloud-Native Architect — Google ADK Multi-Agent System
 
-The **MonoToMicro (M2M) Agent** is an enterprise-grade AI orchestrator built on the **Google Agent Development Kit (ADK)**. It is specifically designed to automate the complex, high-risk journey of migrating legacy Java monolithic applications to modern, cloud-native microservices within highly regulated financial environments.
-
----
-
-## 🏛️ Project Vision
-In a old financial institution, code isn't just software; it's history. The M2M Agent respects this legacy by providing a "Zero-Defect" migration path. It autonomously analyzes, documents, refactors, and secures mission-critical logic, transforming "Black Box" monoliths into agile, observable microservices.
+> Modular, extensible Strangler Fig automation for Java monolith → microservices migration.
 
 ---
 
-## 🚀 Key Features
+## Package Structure
 
-### 1. Intelligent Discovery & Visualization
-* **Deep Repository Analysis:** Scans entire GitHub codebases to identify Bounded Contexts using Domain-Driven Design (DDD).
-* **Automated Documentation:** Generates comprehensive Markdown-based documentation for existing logic.
-* **Architectural Mapping:** Produces High-Level (HLD) and Low-Level (LLD) diagrams using Mermaid.js.
-
-
-
-### 2. Autonomous Decomposition & Refactoring
-* **Strangler Fig Implementation:** Proposes an incremental migration strategy to ensure zero downtime.
-* **Pattern-Based Refactoring:** Automatically suggests and implements patterns like **Saga**, **API Gateway**, and **Database-per-Service**.
-* **Traffic Routing Blueprint:** Generates configuration for NGINX, Istio, or Cloud Ingress to manage the transition from monolith to microservices.
-
-
-
-### 3. Full-Spectrum Test Engineering
-The M2M Agent guarantees stability by generating a robust testing pyramid:
-* **Unit & Component Testing:** JUnit 5 and Mockito coverage for all extracted methods.
-* **Integration Testing:** Validation of database persistence and external API calls.
-* **Contractual Testing:** Implementation of Pact or Spring Cloud Contract to maintain service-to-service integrity.
-* **Edge Case Intelligence:** AI-driven analysis of financial boundary conditions, null-handling, and exception flows.
-
-<img src="images/test_pyramid.png" alt="Test Pyramid" width="500" height="500">
-
-
-### 4. Production-Ready DevOps
-* **Secured Containerization:** Generates multi-stage, distroless `Dockerfiles` optimized for Java 17/21.
-* **Kubernetes Orchestration:** Provides full **Helm Charts** including Deployments, HPA, Services, and ConfigMaps.
-* **Observability-by-Design:** Pre-configures health checks (Liveness/Readiness) and Prometheus metrics.
-
----
-
-## 🛠️ Technical Stack
-* **Orchestration:** [Google Agent Development Kit (ADK)](https://github.com/google/braid-adk)
-* **Core Logic:** Python / Java
-* **LLM Foundations:** Gemini 1.5 Pro (via Vertex AI)
-* **Legacy Frameworks:** Spring Legacy, EJB, Plain Java
-* **Target Frameworks:** Spring Boot 3.x, Spring Cloud
-* **Infrastructure:** Kubernetes (GKE/On-Prem), Docker, Helm, Istio
-
----
-
-## 📋 How It Works (Agentic Workflow)
-
-1.  **Ingestion:** Point the M2M Agent at a GitHub URL.
-2.  **The Analysis Agent:** Maps dependencies, identifies "God Classes," and builds the Domain Map.
-3.  **The Architect Agent:** Proposes the microservice boundaries and generates the Mermaid diagrams.
-4.  **The Implementation Agent:** Generates the new Spring Boot code, refactoring logic from the monolith.
-5.  **The QA Agent:** Writes the full testing suite and validates the refactored code.
-6.  **The DevOps Agent:** Outputs the Docker and Helm artifacts for deployment.
-
-
+```
+mono-to-micro-agent/
+│
+├── config/
+│   └── settings.py          # Pydantic BaseSettings — single source of truth
+│
+├── models/
+│   └── schemas.py           # All Pydantic I/O contracts for every tool
+│
+├── utils/
+│   ├── logger.py            # Structured logging (get_logger(__name__))
+│   ├── java_codegen.py      # Spring Boot / JUnit source templates
+│   └── k8s_codegen.py       # Dockerfile / Helm / K8s YAML templates
+│
+├── tools/
+│   ├── code_reader.py       # Tool 1 — GitHub repo fetcher
+│   ├── architect.py         # Tool 2 — DDD decomposition + Mermaid diagrams
+│   ├── coder.py             # Tool 3 — Spring Boot scaffold + JUnit tests
+│   └── devops.py            # Tool 4 — Dockerfile + Helm + K8s manifests
+│
+├── prompts/
+│   ├── master.py            # Shared foundational system prompt
+│   ├── analyst.py           # Phase I + II prompt
+│   ├── test_engineer.py     # Phase III prompt
+│   └── devops.py            # Phase IV prompt
+│
+├── agents/
+│   ├── base.py              # AgentFactory — consistent LlmAgent construction
+│   ├── analyst_agent.py     # CodeAnalystAgent    (Phase I + II)
+│   ├── test_engineer_agent.py # TestEngineerAgent  (Phase III)
+│   └── devops_agent.py      # DevOpsSpecialistAgent (Phase IV)
+│
+├── orchestrator/
+│   └── pipeline.py          # SequentialAgent — assembles the pipeline
+│
+├── runner/
+│   ├── session.py           # Session service factory (swap backend here)
+│   └── pipeline_runner.py   # PipelineRunner — event loop + result capture
+│
+├── tests/
+│   └── test_tools.py        # pytest unit tests for all four tools
+│
+├── main.py                  # CLI entry point
+├── requirements.txt
+└── .env.example
+```
 
 ---
 
-## 💎 Expected Impact
+## Quick Start
 
-| Metric | Target |
-| :--- | :--- |
-| **Migration Velocity** | 60% reduction in manual effort |
-| **Test Coverage** | ~100% method-level coverage |
-| **Risk Mitigation** | Automated regression and contract validation |
-| **Consistency** | Standardized service templates and deployment manifests |
+```bash
+pip install -r requirements.txt
+cp .env.example .env          # add GOOGLE_API_KEY and GITHUB_TOKEN
+python main.py https://github.com/your-org/legacy-banking-monolith
+```
+
+Run tests (no ADK runtime needed):
+```bash
+pytest tests/ -v
+```
 
 ---
+
+## Extension Recipes
+
+### Add a new agent (e.g. Security Scanner)
+
+**1. Create the prompt** — `prompts/security_scanner.py`
+```python
+SECURITY_SCANNER_PROMPT = "You are a security specialist. Scan for OWASP Top 10..."
+```
+
+**2. Create the tool** — `tools/security_scanner.py`
+```python
+def security_scanner_tool(source_files: dict) -> dict:
+    ...
+```
+Register in `tools/__init__.py`:
+```python
+from .security_scanner import security_scanner_tool
+security_scanner_fn_tool = FunctionTool(func=security_scanner_tool)
+```
+
+**3. Create the agent** — `agents/security_scanner_agent.py`
+```python
+from mono_to_micro_agent.agents.base import AgentFactory
+from mono_to_micro_agent.prompts.security_scanner import SECURITY_SCANNER_PROMPT
+from mono_to_micro_agent.tools import security_scanner_fn_tool
+
+security_scanner_agent = AgentFactory.create(
+    name="SecurityScannerAgent",
+    instruction=SECURITY_SCANNER_PROMPT,
+    tools=[security_scanner_fn_tool],
+    output_key="security_result",
+)
+```
+
+**4. Register in the pipeline** — `orchestrator/pipeline.py`
+```python
+from mono_to_micro_agent.agents.security_scanner_agent import security_scanner_agent
+
+_PIPELINE_AGENTS = [
+    analyst_agent,
+    test_engineer_agent,
+    devops_agent,
+    security_scanner_agent,   # ← append here
+]
+```
+
+That's it. No other files change.
+
+---
+
+### Swap the LLM model
+
+In `.env`:
+```
+DEFAULT_MODEL=gemini-1.5-pro-002
+```
+All agents pick up the change via `get_settings()` — no code changes.
+
+### Switch to Vertex AI
+
+In `.env`:
+```
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-project
+GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+### Swap session backend (e.g., Firestore)
+
+Edit `runner/session.py` only — replace `InMemorySessionService` with
+`FirestoreSessionService`. Nothing else changes.
+
+---
+
+## Module Responsibilities (Single Responsibility Principle)
+
+| Module | Does | Does NOT |
+|--------|------|----------|
+| `config/settings.py` | Load env vars | Touch agents or tools |
+| `models/schemas.py` | Define data shapes | Contain business logic |
+| `utils/java_codegen.py` | Render Java templates | Call APIs or agents |
+| `utils/k8s_codegen.py` | Render K8s YAML | Call APIs or agents |
+| `tools/*.py` | Orchestrate I/O, call utils | Render templates directly |
+| `prompts/*.py` | Define agent instructions | Contain Python logic |
+| `agents/*.py` | Instantiate LlmAgents | Define tools or prompts |
+| `orchestrator/pipeline.py` | Assemble SequentialAgent | Run the event loop |
+| `runner/pipeline_runner.py` | Manage sessions & stream events | Build agents or tools |
+| `main.py` | CLI arg parsing + asyncio.run | Business logic |

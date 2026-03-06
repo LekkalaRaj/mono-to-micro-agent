@@ -1,0 +1,11 @@
+graph TD
+    A[External Clients] -->|HTTP/HTTPS| B(API Gateway)
+    B --> C[payment-service]
+    B --> D[ledger-service]
+    B --> E[auth-service]
+    B --> F[notification-service]
+    C -->|Event| G[(Payments DB)]
+    D -->|Event| H[(Ledger DB)]
+    E -->|Event| I[(Auth DB)]
+    C -->|Saga Step| D
+    C -->|Async Event| F
