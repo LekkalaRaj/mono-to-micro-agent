@@ -34,6 +34,7 @@ The M2M Agent guarantees stability by generating a robust testing pyramid:
 * **Contractual Testing:** Implementation of Pact or Spring Cloud Contract to maintain service-to-service integrity.
 * **Edge Case Intelligence:** AI-driven analysis of financial boundary conditions, null-handling, and exception flows.
 
+<img src="images/test_pyramid.png" alt="Test Pyramid" width="500" height="500">
 
 
 ### 4. Production-Ready DevOps
