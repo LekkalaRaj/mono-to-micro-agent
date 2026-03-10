@@ -1,9 +1,9 @@
 (base) rajasekharlekkala@Rajasekhars-MacBook-Air mono-to-micro-agent % python main.py https://github.com/LekkalaRaj/monolithic_app.git
-2026-03-06T17:05:01 | INFO     | agents.base | Creating agent: CodeAnalystAgent  model=gemini-3-flash-preview  tools=['code_reader_tool', 'architect_tool']
-2026-03-06T17:05:01 | INFO     | agents.base | Creating agent: TestEngineerAgent  model=gemini-3-flash-preview  tools=['coder_tool']
-2026-03-06T17:05:01 | INFO     | agents.base | Creating agent: DevOpsSpecialistAgent  model=gemini-3-flash-preview  tools=['devops_tool']
-2026-03-06T17:05:01 | INFO     | orchestrator.pipeline | Building orchestrator with agents: ['CodeAnalystAgent', 'TestEngineerAgent', 'DevOpsSpecialistAgent']
-2026-03-06T17:05:01 | INFO     | runner.session | Initialising InMemorySessionService for app: legacy-migration-architect
+2026-03-10T18:10:29 | INFO     | agents.base | Creating agent: CodeAnalystAgent  model=gemini-3-flash-preview  tools=['code_reader_tool', 'architect_tool']
+2026-03-10T18:10:29 | INFO     | agents.base | Creating agent: TestEngineerAgent  model=gemini-3-flash-preview  tools=['coder_tool']
+2026-03-10T18:10:29 | INFO     | agents.base | Creating agent: DevOpsSpecialistAgent  model=gemini-3-flash-preview  tools=['devops_tool']
+2026-03-10T18:10:29 | INFO     | orchestrator.pipeline | Building orchestrator with agents: ['CodeAnalystAgent', 'TestEngineerAgent', 'DevOpsSpecialistAgent']
+2026-03-10T18:10:29 | INFO     | runner.session | Initialising InMemorySessionService for app: legacy-migration-architect
 
 ════════════════════════════════════════════════════════════════════════
   LEGACY-TO-CLOUD-NATIVE ARCHITECT — Google ADK Pipeline v2
@@ -12,50 +12,52 @@
   Phases     : Discovery → Decomposition → Implementation → DevOps
 ════════════════════════════════════════════════════════════════════════
 
-2026-03-06T17:05:01 | INFO     | runner.session | Session created: id=1fce1ebe-619b-4816-842e-98db5bdc9100  user=architect-operator-001
+2026-03-10T18:10:29 | INFO     | runner.session | Session created: id=666b1464-670b-468f-a3db-d482c4c41458  user=architect-operator-001
 Warning: there are non-text parts in the response: ['function_call'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
-2026-03-06T17:05:30 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
-2026-03-06T17:05:30 | INFO     | tools.code_reader | Fetching repository: https://github.com/LekkalaRaj/monolithic_app.git  filter=.java
-2026-03-06T17:05:30 | INFO     | tools.code_reader | Starting GitHub API traversal for LekkalaRaj/monolithic_app...
-2026-03-06T17:05:52 | INFO     | tools.code_reader | Repository scan complete: 18 files, 1068 LOC
-2026-03-06T17:05:52 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
-2026-03-06T17:07:07 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
-2026-03-06T17:07:07 | INFO     | tools.architect | Generating all diagrams for repo: monolithic_app
-2026-03-06T17:07:07 | INFO     | tools.architect | Decomposition complete: 4 bounded contexts, 4 proposed services
-2026-03-06T17:07:07 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
-2026-03-06T17:07:23 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
-2026-03-06T17:07:23 | INFO     | runner.pipeline_runner | Final response received.
-2026-03-06T17:08:06 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
-2026-03-06T17:08:06 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: product-catalog-service
-2026-03-06T17:08:06 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
-2026-03-06T17:08:06 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: shopping-cart-service
-2026-03-06T17:08:06 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
-2026-03-06T17:08:06 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: order-management-service
-2026-03-06T17:08:06 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
-2026-03-06T17:08:06 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: payment-gateway-service
-2026-03-06T17:08:06 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
-2026-03-06T17:08:06 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: marketing-service
-2026-03-06T17:08:06 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
-2026-03-06T17:08:06 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
-2026-03-06T17:08:30 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
-2026-03-06T17:08:30 | INFO     | runner.pipeline_runner | Final response received.
-2026-03-06T17:09:04 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
-2026-03-06T17:09:04 | INFO     | tools.devops | Generating infra artefacts for service: product-catalog-service  replicas=3  port=8080
-2026-03-06T17:09:04 | INFO     | tools.devops | DevOps artefacts generated for: product-catalog-service
-2026-03-06T17:09:04 | INFO     | tools.devops | Generating infra artefacts for service: shopping-cart-service  replicas=2  port=8080
-2026-03-06T17:09:04 | INFO     | tools.devops | DevOps artefacts generated for: shopping-cart-service
-2026-03-06T17:09:04 | INFO     | tools.devops | Generating infra artefacts for service: order-management-service  replicas=2  port=8080
-2026-03-06T17:09:04 | INFO     | tools.devops | DevOps artefacts generated for: order-management-service
-2026-03-06T17:09:04 | INFO     | tools.devops | Generating infra artefacts for service: payment-gateway-service  replicas=2  port=8080
-2026-03-06T17:09:04 | INFO     | tools.devops | DevOps artefacts generated for: payment-gateway-service
-2026-03-06T17:09:04 | INFO     | tools.devops | Generating infra artefacts for service: marketing-service  replicas=2  port=8080
-2026-03-06T17:09:04 | INFO     | tools.devops | DevOps artefacts generated for: marketing-service
-2026-03-06T17:09:04 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
-2026-03-06T17:09:23 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
-2026-03-06T17:09:23 | INFO     | runner.pipeline_runner | Final response received.
-2026-03-06T17:09:23 | INFO     | runner.pipeline_runner | Pipeline completed successfully for: https://github.com/LekkalaRaj/monolithic_app.git
+2026-03-10T18:10:31 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
+2026-03-10T18:10:31 | INFO     | tools.code_reader | Fetching repository: https://github.com/LekkalaRaj/monolithic_app.git  filter=.java
+2026-03-10T18:10:32 | INFO     | tools.code_reader | Starting GitHub API traversal for LekkalaRaj/monolithic_app...
+2026-03-10T18:10:53 | INFO     | tools.code_reader | Repository scan complete: 18 files, 1068 LOC
+2026-03-10T18:10:53 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
+2026-03-10T18:11:50 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
+2026-03-10T18:11:50 | INFO     | tools.architect | Generating all diagrams for repo: monolithic_app
+2026-03-10T18:11:50 | INFO     | tools.architect | Decomposition complete: 4 bounded contexts, 4 proposed services
+2026-03-10T18:11:50 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
+2026-03-10T18:12:08 | INFO     | runner.pipeline_runner | [CodeAnalystAgent] event received
+2026-03-10T18:12:08 | INFO     | runner.pipeline_runner | Final response received.
+2026-03-10T18:12:21 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
+2026-03-10T18:12:21 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: catalog-service
+2026-03-10T18:12:21 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
+2026-03-10T18:12:21 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: cart-service
+2026-03-10T18:12:21 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
+2026-03-10T18:12:21 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: order-service
+2026-03-10T18:12:21 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
+2026-03-10T18:12:21 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: marketing-service
+2026-03-10T18:12:21 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
+2026-03-10T18:12:21 | INFO     | tools.coder | Generating Spring Boot 3.2.x / Java 21 for service: payment-service
+2026-03-10T18:12:21 | INFO     | tools.coder | Code generation complete: 3 source files, 2 test files
+2026-03-10T18:12:21 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
+2026-03-10T18:12:33 | INFO     | runner.pipeline_runner | [TestEngineerAgent] event received
+2026-03-10T18:12:33 | INFO     | runner.pipeline_runner | Final response received.
+2026-03-10T18:12:39 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
+2026-03-10T18:12:39 | INFO     | tools.devops | Generating infra artefacts for service: catalog-service  replicas=2  port=8080
+2026-03-10T18:12:39 | INFO     | tools.devops | DevOps artefacts generated for: catalog-service
+2026-03-10T18:12:39 | INFO     | tools.devops | Generating infra artefacts for service: cart-service  replicas=2  port=8080
+2026-03-10T18:12:39 | INFO     | tools.devops | DevOps artefacts generated for: cart-service
+2026-03-10T18:12:39 | INFO     | tools.devops | Generating infra artefacts for service: order-service  replicas=2  port=8080
+2026-03-10T18:12:39 | INFO     | tools.devops | DevOps artefacts generated for: order-service
+2026-03-10T18:12:39 | INFO     | tools.devops | Generating infra artefacts for service: marketing-service  replicas=2  port=8080
+2026-03-10T18:12:39 | INFO     | tools.devops | DevOps artefacts generated for: marketing-service
+2026-03-10T18:12:39 | INFO     | tools.devops | Generating infra artefacts for service: payment-service  replicas=2  port=8080
+2026-03-10T18:12:39 | INFO     | tools.devops | DevOps artefacts generated for: payment-service
+2026-03-10T18:12:39 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
+2026-03-10T18:12:50 | INFO     | runner.pipeline_runner | [DevOpsSpecialistAgent] event received
+2026-03-10T18:12:50 | INFO     | runner.pipeline_runner | Final response received.
+2026-03-10T18:12:50 | INFO     | runner.pipeline_runner | Pipeline completed successfully for: https://github.com/LekkalaRaj/monolithic_app.git
 
 ────────────────────────────────────────────────────────────────────────
   Pipeline complete  |  ✅ SUCCESS
-  Session ID : 1fce1ebe-619b-4816-842e-98db5bdc9100
+  Session ID : 666b1464-670b-468f-a3db-d482c4c41458
 ────────────────────────────────────────────────────────────────────────
+
+(base) rajasekharlekkala@Rajasekhars-MacBook-Air mono-to-micro-agent % 

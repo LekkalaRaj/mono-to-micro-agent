@@ -1,0 +1,13 @@
+apiVersion: v2
+name:        catalog-service
+description: Helm chart for catalog-service microservice
+type:        application
+version:     0.1.0
+appVersion:  "1.0.0"
+keywords:
+  - banking
+  - microservice
+  - strangler-fig
+maintainers:
+  - name:  Platform Engineering
+    email: platform-engineering@bank.internal
