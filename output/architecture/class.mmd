@@ -1,2 +1,46 @@
 classDiagram
-    %% Populated after static analysis
+    class Application {
+        +productList: List~Product~
+        +init()
+        +getProductList()
+    }
+    class ProductController {
+        +productService: ProductService
+        +recommendationService: RecommendationService
+        +adsService: AdsService
+        +getProductById()
+    }
+    class CartController {
+        +session: HttpSession
+        +cartService: CartService
+        +addToCart()
+        +showCart()
+    }
+    class CheckoutController {
+        +orderService: OrderService
+        +cartService: CartService
+        +paymentService: PaymentService
+        +checkout()
+    }
+    class CartService {
+        +productService: ProductService
+        +getCart()
+        +getSelectedProducts()
+    }
+    class OrderService {
+        +cartRepository: CartRepository
+        +addCustomerOrder(Cart)
+    }
+
+    Application --> Product : loads
+    ProductController --> ProductService
+    ProductController --> RecommendationService
+    ProductController --> AdsService
+    CartController --> CartService
+    CheckoutController --> OrderService
+    CheckoutController --> CartService
+    CheckoutController --> PaymentService
+    CartService --> ProductService
+    OrderService --> CartRepository
+    CartRepository --> Cart : manages
+    Cart "1" *-- "many" CartItem : contains

@@ -1,2 +1,17 @@
 sequenceDiagram
-    %% Populated after trace analysis
+    participant U as User
+    participant PC as ProductController
+    participant PS as ProductService
+    participant RS as RecommendationService
+    participant AS as AdsService
+
+    U->>PC: GET /product/{id}
+    PC->>PS: findProductById(id)
+    PS-->>PC: Product Details
+    PC->>RS: getRecommendedProducts(Product)
+    RS->>PS: findProductsByCategory(categories)
+    PS-->>RS: List~Product~
+    RS-->>PC: Recommendations
+    PC->>AS: getRecommendedAd(Product)
+    AS-->>PC: Ad Details
+    PC-->>U: Render Product Page

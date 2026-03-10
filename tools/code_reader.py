@@ -27,19 +27,21 @@ logger = get_logger(__name__)
 
 from github import Github, GithubException
 
-def code_reader_tool(github_url: str, file_filter: str = ".java") -> dict:
+def code_reader_tool(github_url: str, file_filter: str = ".java,.xml,.yml,.yaml,.properties,.sql,.md") -> dict:
     """
-    Fetch and parse Java source files from a GitHub repository URL.
+    Fetch and parse source files from a GitHub repository URL.
 
     Args:
         github_url:  Full GitHub URL  (e.g. https://github.com/org/legacy-app)
-        file_filter: File extension filter (default ".java")
+        file_filter: Comma-separated file extension filter (default ".java,.xml,.yml,.yaml,.properties,.sql,.md")
 
     Returns:
         Serialised CodeReaderOutput as a plain dict (ADK requirement).
     """
     _input = CodeReaderInput(github_url=github_url, file_filter=file_filter)
     logger.info("Fetching repository: %s  filter=%s", _input.github_url, _input.file_filter)
+
+    valid_exts = tuple(ext.strip() for ext in _input.file_filter.split(","))
 
     # Clean the GitHub URL to get the repository path (e.g., LekkalaRaj/monolithic_app)
     repo_path = _input.github_url.replace("https://github.com/", "")
@@ -76,7 +78,7 @@ def code_reader_tool(github_url: str, file_filter: str = ".java") -> dict:
             for item in contents:
                 if item.type == "dir":
                     process_contents(item.path)
-                elif item.type == "file" and item.path.endswith(_input.file_filter):
+                elif item.type == "file" and item.path.endswith(valid_exts):
                     file_tree.append(item.path)
                     try:
                         content_str = item.decoded_content.decode('utf-8')
